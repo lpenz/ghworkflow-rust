@@ -2,6 +2,11 @@
 name: rust
 on:
   workflow_call:
+    inputs:
+      coveralls:
+        required: false
+        type: boolean
+        default: false
     secrets:
       CARGO_REGISTRY_TOKEN:
         required: false
@@ -30,6 +35,7 @@ jobs:
       - id: coverage
         uses: docker://lpenz/ghaction-rust-coverage:0.5.0
       - uses: coverallsapp/github-action@v1.1.2
+        if: inputs.coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ steps.coverage.outputs.report }}
