@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: coverage
-        uses: docker://lpenz/ghaction-rust-coverage:0.5.0
+        uses: docker://lpenz/ghaction-rust-coverage:0.7.0
       - uses: coverallsapp/github-action@v1.1.2
         if: inputs.coveralls
         with:
