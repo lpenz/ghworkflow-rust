@@ -83,6 +83,13 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
   cargo-deb:
     if: inputs.deb
     runs-on: ubuntu-latest
@@ -112,7 +119,7 @@ jobs:
             target/debian/*.deb
             target/release/*
   publish-crate:
-    needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-deb ]
+    needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-audit, cargo-deb ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

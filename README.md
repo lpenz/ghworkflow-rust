@@ -10,6 +10,7 @@ projects. The workflow runs the following jobs:
 - [clippy]
 - [cargo-test]: runs `cargo test` with coverage and uploads results
   to coveralls and/or codecov.
+- [cargo-audit]
 - [publish-crate]: uploads crate to [crates.io]; requires
   `CARGO_REGISTRY_TOKEN` to be passed as a secret.
 - [cargo-deb]: installs and run `cargo-deb`; copies manual to crate
@@ -64,6 +65,7 @@ organization. See [reusing-workflows] for more information.
 [rustfmt]: https://crates.io/crates/rustfmt-nightly
 [clippy]: https://github.com/actions-rs/clippy-check
 [cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
+[cargo-audit]: https://crates.io/crates/cargo-audit
 [publish-crate]: https://github.com/marketplace/actions/publish-crates
 [cargo-deb]: https://crates.io/crates/cargo-deb
 [packagecloud-action]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
