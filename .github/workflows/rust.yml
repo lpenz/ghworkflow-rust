@@ -34,6 +34,10 @@ on:
         required: false
         type: boolean
         default: false
+      publish_packagecloud_repository:
+        required: false
+        type: string
+        default: ''
     secrets:
       CARGO_REGISTRY_TOKEN:
         required: false
@@ -183,7 +187,7 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
         with:
-          repository: debian/debian/bullseye
+          repository: ${{ inputs.publish_packagecloud_repository }}
   publish-github-release:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
              clippy, cargo-audit, cargo-deb ]
