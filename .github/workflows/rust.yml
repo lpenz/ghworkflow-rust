@@ -82,38 +82,43 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
   cargo-deb:
-    if: inputs.deb
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.9.0
-      - name: cargo build --release
+      - name: install cargo-deb
         uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-      - uses: actions-rs/cargo@v1
+        if: inputs.deb
         with:
           command: install
           args: cargo-deb
-      - name: copy manual to current directory
-        run: find target -name '*.[0-9]' -exec cp -vt . {} +
-      - name: cargo deb
+      - name: cargo-deb, test only
         uses: actions-rs/cargo@v1
-        if: steps.version.outputs.version_commit != ''
+        if: inputs.deb && steps.version.outputs.version_commit == ''
+        with:
+          command: deb
+      - name: cargo-deb, release
+        uses: actions-rs/cargo@v1
+        if: inputs.deb && steps.version.outputs.version_commit != ''
         with:
           command: deb
           args: --deb-version '${{ steps.version.outputs.version_commit }}'
+      - name: show deb info
+        if: inputs.deb
+        run: |
+          set -e -x;
+          dpkg -I target/debian/*.deb
+          dpkg -c target/debian/*.deb;
       - uses: actions/upload-artifact@v2
-        if: steps.version.outputs.version_commit != ''
+        if: inputs.deb && steps.version.outputs.version_commit != ''
         with:
           if-no-files-found: error
           path: |
             target/debian/*.deb
             target/release/*
   publish-crate:
-    needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-audit ]
+    needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-audit, cargo-deb ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
