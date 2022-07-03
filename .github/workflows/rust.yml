@@ -18,7 +18,11 @@ on:
         required: false
         type: boolean
         default: false
-      packagecloud:
+      publish_cratesio:
+        required: false
+        type: boolean
+        default: true
+      publish_packagecloud:
         required: false
         type: boolean
         default: false
@@ -117,8 +121,9 @@ jobs:
           path: |
             target/debian/*.deb
             target/release/*
-  publish-crate:
+  publish-cratesio:
     needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-audit, cargo-deb ]
+    if: inputs.publish_cratesio
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -135,9 +140,9 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         with:
           registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-  packagecloud:
-    needs: [ cargo-deb, publish-crate ]
-    if: inputs.packagecloud
+  publish-packagecloud:
+    needs: [ cargo-check, cargo-test, rustfmt, clippy, cargo-audit, cargo-deb ]
+    if: inputs.publish_packagecloud
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
