@@ -208,10 +208,14 @@ jobs:
         with:
           name: cargo-deb
           path: cargo-deb
+      - name: list all files
+        run: find . -type f
       - name: publish github release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         if: steps.version.outputs.version_tagged != ''
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
-          files: cargo-deb/*.deb ${{ inputs.publish_github_release_files }}
+          files: |
+            cargo-deb/*.deb
+            ${{ inputs.publish_github_release_files }}
