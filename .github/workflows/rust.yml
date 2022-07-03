@@ -26,6 +26,10 @@ on:
         required: false
         type: boolean
         default: true
+      publish_github_release_files:
+        required: false
+        type: string
+        default: ''
       publish_packagecloud:
         required: false
         type: boolean
@@ -49,6 +53,7 @@ jobs:
           args: --release
       - uses: actions/upload-artifact@v2
         with:
+          name: cargo-build-release
           if-no-files-found: error
           path: target/release/*
   cargo-check:
@@ -132,12 +137,11 @@ jobs:
           dpkg -I target/debian/*.deb
           dpkg -c target/debian/*.deb;
       - uses: actions/upload-artifact@v2
-        if: inputs.deb && steps.version.outputs.version_commit != ''
+        if: inputs.deb
         with:
+          name: cargo-deb
           if-no-files-found: error
-          path: |
-            target/debian/*.deb
-            target/release/*
+          path: target/debian/*.deb
   publish-cratesio:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
              clippy, cargo-audit, cargo-deb ]
@@ -167,8 +171,12 @@ jobs:
       - uses: actions/checkout@v2
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.9.0
-      - uses: actions/download-artifact@v2
-        if: steps.version.outputs.version_tagged != ''
+      - name: download cargo-deb
+        uses: actions/download-artifact@v2
+        if: inputs.deb
+        with:
+          name: cargo-deb
+          path: cargo-deb
       - name: publish deb on packagecloud
         uses: docker://lpenz/ghaction-packagecloud:0.4
         if: steps.version.outputs.version_tagged != '' && env.PACKAGECLOUD_TOKEN != ''
@@ -185,7 +193,17 @@ jobs:
       - uses: actions/checkout@v2
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.9.0
-      - uses: actions/download-artifact@v2
+      - name: download cargo-build-release
+        uses: actions/download-artifact@v2
+        with:
+          name: cargo-build-release
+          path: .
+      - name: download cargo-deb
+        uses: actions/download-artifact@v2
+        if: inputs.deb
+        with:
+          name: cargo-deb
+          path: cargo-deb
       - name: publish github release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         if: steps.version.outputs.version_tagged != '' && env.PACKAGECLOUD_TOKEN != ''
@@ -194,6 +212,4 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          files: |
-            artifact/debian/*.deb
-            artifact/release/*
+          files: cargo-deb/*.deb "${{ inputs.publish_github_release_files }}"
