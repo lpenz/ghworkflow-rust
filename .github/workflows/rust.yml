@@ -22,6 +22,10 @@ on:
         required: false
         type: boolean
         default: true
+      publish_github_release:
+        required: false
+        type: boolean
+        default: true
       publish_packagecloud:
         required: false
         type: boolean
@@ -172,6 +176,16 @@ jobs:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
         with:
           repository: debian/debian/bullseye
+  publish-github-release:
+    needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
+             clippy, cargo-audit, cargo-deb ]
+    if: inputs.publish_github_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: version
+        uses: docker://lpenz/ghaction-version-gen:0.9.0
+      - uses: actions/download-artifact@v2
       - name: publish github release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         if: steps.version.outputs.version_tagged != '' && env.PACKAGECLOUD_TOKEN != ''
