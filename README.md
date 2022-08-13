@@ -5,20 +5,30 @@
 
 This repository provides a reusable github workflow for rust
 projects. The workflow runs the following jobs:
-- [cargo-check]
-- [rustfmt]
-- [clippy]
-- [cargo-test]: runs `cargo test` with coverage and uploads results
-  to coveralls and/or codecov.
-- [cargo-audit]
-- [publish-crate]: uploads crate to [crates.io]; requires
-  `CARGO_REGISTRY_TOKEN` to be passed as a secret.
-- [cargo-deb]: installs and run `cargo-deb`; copies manual to crate
+- *[cargo-build-release]*: does a `cargo build --release` and makes the `target`
+  directory available for other jobs.
+- *[cargo-check]*
+- *[cargo-test]*: runs `cargo test` with coverage and uploads results
+  to [coveralls.io] and/or [codecov.io].
+- *[rustfmt]*
+- *[clippy]*
+- *[cargo-audit]*
+- *[cargo-deb]*: installs and run `cargo-deb`; copies manual to crate
   directory, if present.
   (optional)
-- [packagecloud]: uploads the cargo-deb debian package to
-  [packagecloud.io]; requires `PACKAGECLOUD_TOKEN` to be passed as a
-  secret.
+- *publish-cratesio*: uses [publish-crate] to publish the crate
+  to [crates.io] when the repository is tagged with a version.
+  Requires the `CARGO_REGISTRY_TOKEN` secret.
+  (optional)
+- *publish-packagecloud*: uses [packagecloud] to upload
+  the Debian package built by `cargo-deb` job to
+  [packagecloud.io] when the repository is tagged with a
+  version. Requires the `PACKAGECLOUD_TOKEN` secret and the
+  `deb` input to be `true`.
+  (optional)
+- *publish-github-release*: uses
+  [action-automatic-releases] to publish a [github release]
+  when the repository is tagged with a version.
   (optional)
 
 
@@ -33,7 +43,7 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.5
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.5.0
     with:
       coveralls: true
       codecov: true
@@ -50,35 +60,31 @@ organization. See [reusing-workflows] for more information.
 
 ### Inputs
 
-- `coveralls`: makes `cargo-test` upload test coverage data to
+- `coveralls`: makes *cargo-test* upload test coverage data to
   [coveralls.io] when `true`.
-- `codecov`: makes `cargo-test` upload test coverage data to [codecov.io]
+- `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
   when `true`.
-- `deb`: enables `cargo-deb` when `true`.
-- `publish_cratesio`: uses [publish-crate] to publish the crate
-  to [crates.io] when the repository is tagged with a version.
-- `publish_github_release`: uses
-  [action-automatic-releases] to publish a github release
-  when the repository is tagged with a version.
-- `publish_github_release_files`: files to publish in the github release.
-- `publish_packagecloud`: uses [packagecloud] to upload
-  the Debian package built by `cargo-deb` job to
-  [packagecloud.io] when the repository is tagged with a
-  version. Requires the `PACKAGECLOUD_TOKEN` secret and the
-  `deb` input to be `true`.
+- `deb`: enables *cargo-deb* when `true`.
+- `publish_cratesio`: enables the *publish-cratesio* job.
+- `publish_github_release`: enables the *publish-github-release* job.
+- `publish_github_release_files`: files to publish in the github
+  release, relative to the `target/release` directory.
+- `publish_packagecloud`: enables the *publish-packagecloud* job.
 - `publish_packagecloud_repository`: packagecloud repository to
   publish .deb.
 
 
+[cargo-build-release]: https://doc.rust-lang.org/cargo/commands/cargo-build.html
 [cargo-check]: https://doc.rust-lang.org/cargo/commands/cargo-check.html
+[cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
 [rustfmt]: https://crates.io/crates/rustfmt-nightly
 [clippy]: https://github.com/actions-rs/clippy-check
-[cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
 [cargo-audit]: https://crates.io/crates/cargo-audit
-[publish-crate]: https://github.com/marketplace/actions/publish-crates
 [cargo-deb]: https://crates.io/crates/cargo-deb
+[publish-crate]: https://github.com/marketplace/actions/publish-crates
 [packagecloud]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
 [action-automatic-releases]: https://github.com/marketplace/actions/automatic-releases
+[github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
 [crates.io]: https://crates.io/
 [packagecloud.io]: https://packagecloud.io/
 [reusing-workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
