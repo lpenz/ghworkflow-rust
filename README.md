@@ -16,8 +16,8 @@ projects. The workflow runs the following jobs:
 - [cargo-deb]: installs and run `cargo-deb`; copies manual to crate
   directory, if present.
   (optional)
-- [packagecloud](packagecloud-action): uploads the cargo-deb debian package to
-  [packagecloud]; requires `PACKAGECLOUD_TOKEN` to be passed as a
+- [packagecloud]: uploads the cargo-deb debian package to
+  [packagecloud.io]; requires `PACKAGECLOUD_TOKEN` to be passed as a
   secret.
   (optional)
 
@@ -33,7 +33,7 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.2
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.5
     with:
       coveralls: true
       codecov: true
@@ -50,15 +50,24 @@ organization. See [reusing-workflows] for more information.
 
 ### Inputs
 
-- coveralls: makes `cargo-test` upload test coverage data to
-  [coveralls] when `true`.
-- codecov: makes `cargo-test` upload test coverage data to [codecov]
+- `coveralls`: makes `cargo-test` upload test coverage data to
+  [coveralls.io] when `true`.
+- `codecov`: makes `cargo-test` upload test coverage data to [codecov.io]
   when `true`.
-- deb: enables `cargo-deb` when `true`.
-- packagecloud: enables the `packagecloud` job that uploads the Debian
-  package built by `cargo-deb` job to [packagecloud]. Requires the
-  `PACKAGECLOUD_TOKEN` secret. Also requires the `deb` input to be
-  `true`.
+- `deb`: enables `cargo-deb` when `true`.
+- `publish_cratesio`: uses [publish-crate] to publish the crate
+  to [crates.io] when the repository is tagged with a version.
+- `publish_github_release`: uses
+  [action-automatic-releases] to publish a github release
+  when the repository is tagged with a version.
+- `publish_github_release_files`: files to publish in the github release.
+- `publish_packagecloud`: uses [packagecloud] to upload
+  the Debian package built by `cargo-deb` job to
+  [packagecloud.io] when the repository is tagged with a
+  version. Requires the `PACKAGECLOUD_TOKEN` secret and the
+  `deb` input to be `true`.
+- `publish_packagecloud_repository`: packagecloud repository to
+  publish .deb.
 
 
 [cargo-check]: https://doc.rust-lang.org/cargo/commands/cargo-check.html
@@ -68,9 +77,10 @@ organization. See [reusing-workflows] for more information.
 [cargo-audit]: https://crates.io/crates/cargo-audit
 [publish-crate]: https://github.com/marketplace/actions/publish-crates
 [cargo-deb]: https://crates.io/crates/cargo-deb
-[packagecloud-action]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
+[packagecloud]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
+[action-automatic-releases]: https://github.com/marketplace/actions/automatic-releases
 [crates.io]: https://crates.io/
-[packagecloud]: https://packagecloud.io/
+[packagecloud.io]: https://packagecloud.io/
 [reusing-workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
-[coveralls]: https://coveralls.io/
-[codecov]: https://codecov.io/
+[coveralls.io]: https://coveralls.io/
+[codecov.io]: https://codecov.io/
