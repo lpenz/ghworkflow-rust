@@ -113,13 +113,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
   cargo-deb:
     runs-on: ubuntu-latest
+    if: inputs.deb
     steps:
       - uses: actions/checkout@v3.0.2
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.9.0
       - name: install cargo-deb
         uses: actions-rs/cargo@v1.0.3
-        if: inputs.deb
         with:
           command: install
           args: cargo-deb
