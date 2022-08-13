@@ -7,3 +7,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
       - uses: docker://lpenz/omnilint:0.5
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
+        with:
+          config-file: '.github/config/mlc_config.json'
