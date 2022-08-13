@@ -5,5 +5,5 @@ jobs:
   omnilint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: docker://lpenz/omnilint:0.4
+      - uses: actions/checkout@v3.0.2
+      - uses: docker://lpenz/omnilint:0.5
