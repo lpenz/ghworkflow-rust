@@ -68,7 +68,7 @@ organization. See [reusing-workflows] for more information.
 - `publish_cratesio`: enables the *publish-cratesio* job.
 - `publish_github_release`: enables the *publish-github-release* job.
 - `publish_github_release_files`: files to publish in the github
-  release, relative to the `target/release` directory.
+  release.
 - `publish_packagecloud`: enables the *publish-packagecloud* job.
 - `publish_packagecloud_repository`: packagecloud repository to
   publish .deb.

@@ -59,7 +59,7 @@ jobs:
         with:
           name: cargo-build-release
           if-no-files-found: error
-          path: target/release/*
+          path: target/release
   cargo-check:
     runs-on: ubuntu-latest
     steps:
@@ -145,7 +145,7 @@ jobs:
         with:
           name: cargo-deb
           if-no-files-found: error
-          path: target/debian/*.deb
+          path: target/debian
   publish-cratesio:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
              clippy, cargo-audit, cargo-deb ]
@@ -180,7 +180,7 @@ jobs:
         if: inputs.deb
         with:
           name: cargo-deb
-          path: cargo-deb
+          path: target/release
       - name: publish deb on packagecloud
         uses: docker://lpenz/ghaction-packagecloud:0.4
         if: steps.version.outputs.version_tagged != ''
@@ -201,13 +201,13 @@ jobs:
         uses: actions/download-artifact@v3.0.0
         with:
           name: cargo-build-release
-          path: .
+          path: target/release
       - name: download cargo-deb
         uses: actions/download-artifact@v3.0.0
         if: inputs.deb
         with:
           name: cargo-deb
-          path: cargo-deb
+          path: target/debian
       - name: list all files
         run: find . -type f
       - name: publish github release
@@ -217,5 +217,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
           files: |
-            cargo-deb/*.deb
+            target/debian/*.deb
             ${{ inputs.publish_github_release_files }}
