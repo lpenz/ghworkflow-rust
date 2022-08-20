@@ -136,8 +136,40 @@ jobs:
   cargo-deb:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/cargo-deb
+      - uses: actions/checkout@v3.0.2
         if: inputs.deb
+      - id: version
+        if: inputs.deb
+        uses: docker://lpenz/ghaction-version-gen:0.9.0
+      - name: install cargo-deb
+        if: inputs.deb
+        uses: actions-rs/cargo@v1.0.3
+        with:
+          command: install
+          args: cargo-deb
+      - name: cargo-deb, test only
+        if: inputs.deb && steps.version.outputs.version_commit == ''
+        uses: actions-rs/cargo@v1.0.3
+        with:
+          command: deb
+      - name: cargo-deb, release
+        if: inputs.deb && steps.version.outputs.version_commit != ''
+        uses: actions-rs/cargo@v1.0.3
+        with:
+          command: deb
+          args: --deb-version '${{ steps.version.outputs.version_commit }}'
+      - name: show deb info
+        if: inputs.deb
+        run: |
+          set -e -x;
+          dpkg -I target/debian/*.deb
+          dpkg -c target/debian/*.deb;
+      - uses: actions/upload-artifact@v3.1.0
+        if: inputs.deb
+        with:
+          name: cargo-deb
+          if-no-files-found: error
+          path: target/debian
   publish-cratesio:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
              clippy, cargo-audit, cargo-deb ]
