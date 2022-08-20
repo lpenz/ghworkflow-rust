@@ -65,6 +65,8 @@ organization. See [reusing-workflows] for more information.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
   when `true`.
 - `deb`: enables *cargo-deb* when `true`.
+- `dependencies_debian`: dependencies as Debian packages to install;
+   used in the appropriate actions if defined
 - `publish_cratesio`: enables the *publish-cratesio* job.
 - `publish_github_release`: enables the *publish-github-release* job.
 - `publish_github_release_files`: files to publish in the github
