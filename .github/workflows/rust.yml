@@ -7,34 +7,46 @@ on:
   workflow_call:
     inputs:
       coveralls:
+        description: |
+          Makes cargo-test upload test coverage data to coveralls.io
+          when true.
         required: false
         type: boolean
         default: false
       codecov:
+        description: |
+          Makes *cargo-test* upload test coverage data to codecov.io
+          when true.
         required: false
         type: boolean
         default: false
       deb:
+        description: Enables cargo-deb when true.
         required: false
         type: boolean
         default: false
       publish_cratesio:
+        description: Enables the publish-cratesio job.
         required: false
         type: boolean
         default: true
       publish_github_release:
+        description: Enables the publish-github-release job.
         required: false
         type: boolean
         default: true
       publish_github_release_files:
+        description: Files to publish in the github release.
         required: false
         type: string
         default: ''
       publish_packagecloud:
+        description: Enables the publish-packagecloud job.
         required: false
         type: boolean
         default: false
       publish_packagecloud_repository:
+        description: packagecloud repository to publish .deb.
         required: false
         type: string
         default: ''
