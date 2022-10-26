@@ -69,13 +69,13 @@ jobs:
       - name: install dependencies
         run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: cargo build --release
         uses: actions-rs/cargo@v1.0.3
         with:
           command: build
           args: --release
-      - uses: actions/upload-artifact@v3.1.0
+      - uses: actions/upload-artifact@v3.1.1
         with:
           name: cargo-build-release
           if-no-files-found: error
@@ -83,7 +83,7 @@ jobs:
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: cargo check
         uses: actions-rs/cargo@v1.0.3
         with:
@@ -91,10 +91,10 @@ jobs:
   cargo-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: cargo test with coverage
         id: coverage
-        uses: docker://lpenz/ghaction-rust-coverage:0.10.0
+        uses: docker://lpenz/ghaction-rust-coverage:0.11.0
         with:
           dependencies_debian: ${{ inputs.dependencies_debian }}
       - name: upload coverage data to coveralls
@@ -104,7 +104,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ${{ steps.coverage.outputs.report }}
       - name: upload coverage data to codecov
-        uses: codecov/codecov-action@v3.1.0
+        uses: codecov/codecov-action@v3.1.1
         if: inputs.codecov
         with:
           files: ${{ steps.coverage.outputs.report }}
@@ -112,7 +112,7 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: rust fmt --all -- --check
         uses: actions-rs/cargo@v1.0.3
         with:
@@ -121,7 +121,7 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - uses: actions-rs/clippy-check@v1.0.7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -129,18 +129,18 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - uses: actions-rs/audit-check@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
   cargo-deb:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
         if: inputs.deb
       - id: version
         if: inputs.deb
-        uses: docker://lpenz/ghaction-version-gen:0.9.0
+        uses: docker://lpenz/ghaction-version-gen:0.10.1
       - name: install cargo-deb
         if: inputs.deb
         uses: actions-rs/cargo@v1.0.3
@@ -164,7 +164,7 @@ jobs:
           set -e -x;
           dpkg -I target/debian/*.deb
           dpkg -c target/debian/*.deb;
-      - uses: actions/upload-artifact@v3.1.0
+      - uses: actions/upload-artifact@v3.1.1
         if: inputs.deb
         with:
           name: cargo-deb
@@ -176,9 +176,9 @@ jobs:
     if: inputs.publish_cratesio
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.9.0
+        uses: docker://lpenz/ghaction-version-gen:0.10.1
       - uses: actions-rs/toolchain@v1.0.7
         with:
           toolchain: stable
@@ -196,11 +196,11 @@ jobs:
     if: inputs.publish_packagecloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.9.0
+        uses: docker://lpenz/ghaction-version-gen:0.10.1
       - name: download cargo-deb
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v3.0.1
         if: inputs.deb
         with:
           name: cargo-deb
@@ -218,16 +218,16 @@ jobs:
     if: inputs.publish_github_release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.9.0
+        uses: docker://lpenz/ghaction-version-gen:0.10.1
       - name: download cargo-build-release
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v3.0.1
         with:
           name: cargo-build-release
           path: target/release
       - name: download cargo-deb
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v3.0.1
         if: inputs.deb
         with:
           name: cargo-deb
