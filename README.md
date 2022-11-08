@@ -49,6 +49,8 @@ jobs:
       codecov: true
       deb: true
       packagecloud: true
+      publish_packagecloud_repository: |
+        ["debian/debian/bullseye", "ubuntu/ubuntu/focal"]
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
@@ -72,8 +74,8 @@ organization. See [reusing-workflows] for more information.
 - `publish_github_release_files`: files to publish in the github
   release.
 - `publish_packagecloud`: enables the *publish-packagecloud* job.
-- `publish_packagecloud_repository`: packagecloud repository to
-  publish .deb.
+- `publish_packagecloud_repository`: json list with packagecloud
+  repositories to publish .deb.
 
 
 [cargo-build-release]: https://doc.rust-lang.org/cargo/commands/cargo-build.html
