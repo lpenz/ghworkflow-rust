@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0
-      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.14
+      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         with:
           config-file: '.github/config/mlc_config.json'
   publish-github-release:
