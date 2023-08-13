@@ -1,4 +1,5 @@
 [![CI](https://github.com/lpenz/ghworkflow-rust/actions/workflows/ci.yml/badge.svg)](https://github.com/lpenz/ghworkflow-rust/actions/workflows/ci.yml)
+[![github](https://img.shields.io/github/v/release/lpenz/ghworkflow-rust?logo=github)](https://github.com/lpenz/ghworkflow-rust/releases)
 
 
 # ghworkflow-rust
