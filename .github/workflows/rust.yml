@@ -176,6 +176,7 @@ jobs:
       - uses: actions/checkout@v3.5.3
       - name: check Cargo.lock version against Cargo.toml
         uses: actions-rs/cargo@v1.0.3
+        if: ${{ hashFiles('Cargo.lock') != '' }}
         with:
           command: update
           args: -w --locked
