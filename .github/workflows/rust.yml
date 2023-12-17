@@ -83,6 +83,17 @@ jobs:
       - uses: actions/checkout@v4.1.1
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check
+  cargo-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo doc --all-features
+      - uses: actions/upload-artifact@v4.0.0
+        with:
+          name: cargo-doc
+          if-no-files-found: error
+          path: target/doc
   cargo-test:
     runs-on: ubuntu-latest
     steps:
