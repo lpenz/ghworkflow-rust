@@ -9,6 +9,7 @@ projects. The workflow runs the following jobs:
 - *[cargo-build-release]*: does a `cargo build --release` and makes the `target`
   directory available for other jobs.
 - *[cargo-check]*
+- *[cargo-doc]*
 - *[cargo-test]*: runs `cargo test` with coverage and uploads results
   to [coveralls.io] and/or [codecov.io].
 - *[rustfmt]*
@@ -17,6 +18,10 @@ projects. The workflow runs the following jobs:
 - *[cargo-deb]*: installs and run `cargo-deb`; copies manual to crate
   directory, if present.
   (optional)
+- *rust-misc*: misc checks; for now it checks if the Cargo.lock
+  version matches the one in Cargo.toml.
+- *[cargo-semver-checks]*: checks semver violantions before
+  publishing.
 - *publish-cratesio*: uses [publish-crate] to publish the crate
   to [crates.io] when the repository is tagged with a version.
   Requires the `CARGO_REGISTRY_TOKEN` secret.
@@ -44,7 +49,7 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.19.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.20.0
     with:
       coveralls: true
       codecov: true
@@ -81,6 +86,7 @@ organization. See [reusing-workflows] for more information.
 
 [cargo-build-release]: https://doc.rust-lang.org/cargo/commands/cargo-build.html
 [cargo-check]: https://doc.rust-lang.org/cargo/commands/cargo-check.html
+[cargo-doc]: https://doc.rust-lang.org/cargo/commands/cargo-doc.html
 [cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
 [rustfmt]: https://crates.io/crates/rustfmt-nightly
 [clippy]: https://github.com/actions-rs/clippy-check
@@ -95,3 +101,4 @@ organization. See [reusing-workflows] for more information.
 [reusing-workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 [coveralls.io]: https://coveralls.io/
 [codecov.io]: https://codecov.io/
+[cargo-semver-checks]: https://github.com/obi1kenobi/cargo-semver-checks-action
