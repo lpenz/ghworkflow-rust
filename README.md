@@ -44,14 +44,14 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.18.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.19.0
     with:
       coveralls: true
       codecov: true
       deb: true
       packagecloud: true
       publish_packagecloud_repository: |
-        ["debian/debian/bullseye", "ubuntu/ubuntu/focal"]
+        ["debian/debian/bookworm", "ubuntu/ubuntu/jammy"]
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
