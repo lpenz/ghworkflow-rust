@@ -7,6 +7,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
       - uses: docker://lpenz/omnilint:0.5.1
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+        with:
+          path: ghworkflow-rust
+      - uses: actions/checkout@v3.5.3
+        with:
+          repository: lpenz/ogle
+          path: ogle
+          fetch-depth: 0
+      - uses: ./ghworkflow-rust
+        with:
+          working_directory: ogle
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
