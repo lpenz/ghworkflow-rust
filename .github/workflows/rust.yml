@@ -97,23 +97,30 @@ jobs:
   cargo-test:
     runs-on: ubuntu-latest
     steps:
+      - name: install dependencies
+        run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
+        if: inputs.dependencies_debian
       - uses: actions/checkout@v4.1.1
-      - name: cargo test with coverage
-        id: coverage
-        uses: docker://lpenz/ghaction-rust-coverage:0.15.0
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          dependencies_debian: ${{ inputs.dependencies_debian }}
+          components: llvm-tools
+      - uses: taiki-e/install-action@v2.27.2
+        with:
+          tool: cargo-llvm-cov
+      - run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+        env:
+          CARGO_HUSKY_DONT_INSTALL_HOOKS: true
       - name: upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.2.3
         if: inputs.coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ${{ steps.coverage.outputs.report }}
+          path-to-lcov: lcov.info
       - name: upload coverage data to codecov
         uses: codecov/codecov-action@v3.1.6
         if: inputs.codecov
         with:
-          files: ${{ steps.coverage.outputs.report }}
+          files: lcov.info
           fail_ci_if_error: true
   rustfmt:
     runs-on: ubuntu-latest
