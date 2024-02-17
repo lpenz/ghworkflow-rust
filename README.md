@@ -11,7 +11,8 @@ projects. The workflow runs the following jobs:
 - *[cargo-check]*
 - *[cargo-doc]*
 - *[cargo-test]*: runs `cargo test` with coverage and uploads results
-  to [coveralls.io] and/or [codecov.io].
+  to [coveralls.io] and/or [codecov.io] (requires the `CODECOV_TOKEN`
+  secret)
 - *[rustfmt]*
 - *[clippy]*
 - *[cargo-audit]*
@@ -60,6 +61,7 @@ jobs:
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 You may have to enable public reusable workflow usage in your
