@@ -67,10 +67,10 @@ jobs:
       - name: install dependencies
         run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
       - run: cargo build --release
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.4.0
         with:
           name: cargo-build-release
           if-no-files-found: error
@@ -78,16 +78,16 @@ jobs:
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
       - run: cargo check
   cargo-doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
       - run: cargo doc --all-features
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.4.0
         with:
           name: cargo-doc
           if-no-files-found: error
@@ -98,24 +98,24 @@ jobs:
       - name: install dependencies
         run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
         with:
           components: llvm-tools
-      - uses: taiki-e/install-action@v2.27.2
+      - uses: taiki-e/install-action@v2.42.42
         with:
           tool: cargo-llvm-cov
       - run: cargo llvm-cov --all-features --lcov --output-path lcov.info
         env:
           CARGO_HUSKY_DONT_INSTALL_HOOKS: true
       - name: upload coverage data to coveralls
-        uses: coverallsapp/github-action@v2.2.3
+        uses: coverallsapp/github-action@v2.3.0
         if: inputs.coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
       - name: upload coverage data to codecov
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@v4.5.0
         if: inputs.codecov
         with:
           files: lcov.info
@@ -123,35 +123,35 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
         with:
           components: rustfmt
       - run: cargo fmt --all -- --check
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
         with:
           components: clippy
       - run: cargo clippy --all-features
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
       - run: cargo install cargo-audit
       - run: cargo audit
   cargo-deb:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.7
         if: inputs.deb
       - id: version
         if: inputs.deb
         uses: docker://lpenz/ghaction-version-gen:0.14.0
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
       - name: install cargo-deb
         if: inputs.deb
         run: cargo install cargo-deb
@@ -167,7 +167,7 @@ jobs:
           set -e -x;
           dpkg -I target/debian/*.deb
           dpkg -c target/debian/*.deb;
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.4.0
         if: inputs.deb
         with:
           name: cargo-deb
@@ -176,19 +176,19 @@ jobs:
   rust-misc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4.1.7
+      - uses: dtolnay/rust-toolchain@v1
       - name: check Cargo.lock version against Cargo.toml
         run: cargo update -w --locked
         if: ${{ hashFiles('Cargo.lock') != '' }}
   cargo-semver-checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.7
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.14.0
       - name: cargo-semver-checks
-        uses: obi1kenobi/cargo-semver-checks-action@v2.3
+        uses: obi1kenobi/cargo-semver-checks-action@v2.6
         if: steps.version.outputs.version_tagged != ''
   publish-cratesio:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
@@ -197,10 +197,10 @@ jobs:
     if: inputs.publish_cratesio
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.7
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.14.0
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
       - name: publish crate on crates.io
@@ -220,11 +220,11 @@ jobs:
       matrix:
         repository: ${{ fromJson(inputs.publish_packagecloud_repository) }}
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.7
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.14.0
       - name: download packages generated by cargo-deb
-        uses: actions/download-artifact@v4.1.2
+        uses: actions/download-artifact@v4.1.8
         if: inputs.deb
         with:
           name: cargo-deb
@@ -243,16 +243,16 @@ jobs:
     if: inputs.publish_github_release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.7
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.14.0
       - name: download cargo-build-release
-        uses: actions/download-artifact@v4.1.2
+        uses: actions/download-artifact@v4.1.8
         with:
           name: cargo-build-release
           path: target/release
       - name: download cargo-deb
-        uses: actions/download-artifact@v4.1.2
+        uses: actions/download-artifact@v4.1.8
         if: inputs.deb
         with:
           name: cargo-deb
