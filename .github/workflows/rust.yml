@@ -6,6 +6,12 @@ name: rust
 on:
   workflow_call:
     inputs:
+      enable_cargo-semver-checks:
+        description: |
+          Enables cargo-semver-checks - default is true.
+        required: false
+        type: boolean
+        default: true
       coveralls:
         description: |
           Makes cargo-test upload test coverage data to coveralls.io
@@ -189,7 +195,7 @@ jobs:
         uses: docker://lpenz/ghaction-version-gen:0.14.0
       - name: cargo-semver-checks
         uses: obi1kenobi/cargo-semver-checks-action@v2.6
-        if: steps.version.outputs.version_tagged != ''
+        if: inputs.enable_cargo-semver-checks && steps.version.outputs.version_tagged != ''
   publish-cratesio:
     needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
              clippy, cargo-audit, cargo-deb, rust-misc,

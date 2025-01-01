@@ -68,6 +68,8 @@ organization. See [reusing-workflows] for more information.
 
 ### Inputs
 
+- `enable_cargo-semver-checks`: enables cargo-semver-checks - default
+  is `true`.
 - `coveralls`: makes *cargo-test* upload test coverage data to
   [coveralls.io] when `true`.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
