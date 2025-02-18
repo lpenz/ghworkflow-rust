@@ -121,12 +121,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
       - name: upload coverage data to codecov
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5
         if: inputs.codecov
         with:
           files: lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   rustfmt:
     runs-on: ubuntu-latest
     steps:
