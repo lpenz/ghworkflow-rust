@@ -3,7 +3,7 @@
 # This file is subject to the terms and conditions defined in
 # file 'LICENSE', which is part of this source code package.
 name: rust
-on:
+on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       enable_cargo-semver-checks:
@@ -76,7 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: install dependencies
-        run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
       - uses: actions/checkout@v4.2.0
       - uses: dtolnay/rust-toolchain@stable
@@ -107,7 +109,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: install dependencies
-        run: sudo apt-get install -y --no-install-recommends ${{ inputs.dependencies_debian }}
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
       - uses: actions/checkout@v4.2.0
       - uses: dtolnay/rust-toolchain@stable
@@ -172,7 +176,9 @@ jobs:
         run: cargo deb
       - name: cargo-deb, release
         if: inputs.deb && steps.version.outputs.version_commit != ''
-        run: cargo deb --deb-version '${{ steps.version.outputs.version_commit }}'
+        run: >
+          cargo deb --deb-version
+          '${{ steps.version.outputs.version_commit }}'
       - name: show deb info
         if: inputs.deb
         run: |
@@ -194,11 +200,13 @@ jobs:
         uses: docker://lpenz/ghaction-version-gen:0.15.1
         if: inputs.rpm
       - name: Set RPM name
-        run: echo "rpm=${{ steps.version.outputs.package_basename }}.rpm" >> "$GITHUB_ENV"
+        run: >
+          echo "rpm=${{ steps.version.outputs.package_basename }}.rpm"
+          >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@stable
         if: inputs.rpm
         with:
-            target: x86_64-unknown-linux-musl
+          target: x86_64-unknown-linux-musl
       - name: Build release for x86_64-unknown-linux-musl to avoid dependencies
         if: inputs.rpm
         run: cargo build --release --target x86_64-unknown-linux-musl
@@ -248,11 +256,13 @@ jobs:
         uses: docker://lpenz/ghaction-version-gen:0.15.1
       - name: cargo-semver-checks
         uses: obi1kenobi/cargo-semver-checks-action@v2.6
-        if: inputs.enable_cargo-semver-checks && steps.version.outputs.version_tagged != ''
+        if: >
+          inputs.enable_cargo-semver-checks &&
+          steps.version.outputs.version_tagged != ''
   publish-cratesio:
-    needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
-             clippy, cargo-audit, cargo-deb, rust-misc,
-             cargo-semver-checks ]
+    needs: [cargo-build-release, cargo-check, cargo-test, rustfmt,
+            clippy, cargo-audit, cargo-deb, rust-misc,
+            cargo-semver-checks]
     if: inputs.publish_cratesio
     runs-on: ubuntu-latest
     steps:
@@ -270,9 +280,9 @@ jobs:
         with:
           registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
   publish-packagecloud:
-    needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
-             clippy, cargo-audit, cargo-deb, rust-misc,
-             cargo-semver-checks ]
+    needs: [cargo-build-release, cargo-check, cargo-test, rustfmt,
+            clippy, cargo-audit, cargo-deb, rust-misc,
+            cargo-semver-checks]
     if: inputs.publish_packagecloud
     runs-on: ubuntu-latest
     strategy:
@@ -296,9 +306,9 @@ jobs:
         with:
           repository: ${{ matrix.repository }}
   publish-github-release:
-    needs: [ cargo-build-release, cargo-check, cargo-test, rustfmt,
-             clippy, cargo-audit, cargo-deb, rust-misc,
-             cargo-semver-checks ]
+    needs: [cargo-build-release, cargo-check, cargo-test, rustfmt,
+            clippy, cargo-audit, cargo-deb, rust-misc,
+            cargo-semver-checks]
     if: inputs.publish_github_release
     runs-on: ubuntu-latest
     steps:

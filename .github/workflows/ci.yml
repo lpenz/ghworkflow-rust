@@ -1,6 +1,9 @@
 ---
 name: CI
-on: [ workflow_dispatch, push, pull_request ]
+on:  # yamllint disable-line rule:truthy
+  - workflow_dispatch
+  - push
+  - pull_request
 jobs:
   omnilint:
     runs-on: ubuntu-latest
@@ -15,7 +18,7 @@ jobs:
         with:
           config-file: '.github/config/mlc_config.json'
   publish-github-release:
-    needs: [ omnilint, markdown-link-check ]
+    needs: [omnilint, markdown-link-check]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.0
