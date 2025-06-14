@@ -15,8 +15,11 @@ projects. The workflow runs the following jobs:
 - *[rustfmt]*
 - *[clippy]*
 - *[cargo-audit]*
-- *[cargo-deb]*: installs and run `cargo-deb`; copies manual to crate
-  directory, if present.
+- *cargo-deb*: installs and runs [cargo-deb]; copies manual to the
+  crate directory, if present.
+  (optional)
+- *cargo-rpm*: installs and runs [cargo-generate-rpm]; copies manual
+  to the crate directory, if present.
   (optional)
 - *rust-misc*: misc checks; for now it checks if the Cargo.lock
   version matches the one in Cargo.toml.
@@ -26,11 +29,17 @@ projects. The workflow runs the following jobs:
   to [crates.io] when the repository is tagged with a version.
   Requires the `CARGO_REGISTRY_TOKEN` secret.
   (optional)
-- *publish-packagecloud*: uses [packagecloud] to upload
-  the Debian package built by `cargo-deb` job to
+- *publish-packagecloud-deb*: uses [packagecloud] to upload
+  the Debian package built by the `cargo-deb` job to
   [packagecloud.io] when the repository is tagged with a
   version. Requires the `PACKAGECLOUD_TOKEN` secret and the
   `deb` input to be `true`.
+  (optional)
+- *publish-packagecloud-rpm*: uses [packagecloud] to upload
+  the RPM package built by the `cargo-rpm` job to
+  [packagecloud.io] when the repository is tagged with a
+  version. Requires the `PACKAGECLOUD_TOKEN` secret and the
+  `rpm` input to be `true`.
   (optional)
 - *publish-github-release*: uses
   [action-automatic-releases] to publish a [github release]
@@ -55,7 +64,7 @@ jobs:
       codecov: true
       deb: true
       packagecloud: true
-      publish_packagecloud_repository: |
+      publish_packagecloud_repository_deb: |
         ["debian/debian/bookworm", "ubuntu/ubuntu/jammy"]
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -81,9 +90,12 @@ organization. See [reusing-workflows] for more information.
 - `publish_github_release`: enables the *publish-github-release* job.
 - `publish_github_release_files`: files to publish in the github
   release.
-- `publish_packagecloud`: enables the *publish-packagecloud* job.
-- `publish_packagecloud_repository`: json list with packagecloud
-  repositories to publish .deb.
+- `publish_packagecloud_repository_deb`: json list with packagecloud
+  repositories to publish .deb. When defined, it enables the
+  *publish-packagecloud-deb* job.
+- `publish_packagecloud_repository_rpm`: json list with packagecloud
+  repositories to publish .rpm. When defined, it enables the
+  *publish-packagecloud-rpm* job.
 
 
 [cargo-build-release]: https://doc.rust-lang.org/cargo/commands/cargo-build.html
@@ -94,6 +106,7 @@ organization. See [reusing-workflows] for more information.
 [clippy]: https://github.com/actions-rs/clippy-check
 [cargo-audit]: https://crates.io/crates/cargo-audit
 [cargo-deb]: https://crates.io/crates/cargo-deb
+[cargo-generate-rpm]: https://crates.io/crates/cargo-generate-rpm
 [publish-crate]: https://github.com/marketplace/actions/publish-crates
 [packagecloud]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
 [action-automatic-releases]: https://github.com/marketplace/actions/automatic-releases
