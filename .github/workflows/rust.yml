@@ -75,7 +75,7 @@ jobs:
   cargo-build-release:
     runs-on: ubuntu-latest
     steps:
-      - name: install dependencies
+      - name: Install dependencies
         run: >
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
@@ -108,7 +108,7 @@ jobs:
   cargo-test:
     runs-on: ubuntu-latest
     steps:
-      - name: install dependencies
+      - name: Install dependencies
         run: >
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
@@ -123,13 +123,13 @@ jobs:
       - run: cargo llvm-cov --all-features --lcov --output-path lcov.info
         env:
           CARGO_HUSKY_DONT_INSTALL_HOOKS: true
-      - name: upload coverage data to coveralls
+      - name: Upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.3.0
         if: inputs.coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
-      - name: upload coverage data to codecov
+      - name: Upload coverage data to codecov
         uses: codecov/codecov-action@v4.5.0
         if: inputs.codecov
         with:
@@ -165,44 +165,64 @@ jobs:
         if: inputs.deb
       - id: version
         if: inputs.deb
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
+      - name: Set .deb information
+        id: pkg
+        run: >
+          set -e -x;
+          deb_arch=$(dpkg --print-architecture);
+          deb=${{ steps.version.outputs.deb_basename }}_$deb_arch.deb;
+          echo "deb=$deb" >> "$GITHUB_ENV";
+          echo "deb=$deb" >> "$GITHUB_OUTPUT";
       - uses: dtolnay/rust-toolchain@stable
         if: inputs.deb
-      - name: install cargo-deb
+        with:
+          target: x86_64-unknown-linux-musl
+      - name: Install cargo-deb
         if: inputs.deb
         run: cargo install cargo-deb
-      - name: cargo-deb, test only
+      - name: Run cargo-deb for tests only
         if: inputs.deb && steps.version.outputs.version_commit == ''
-        run: cargo deb
-      - name: cargo-deb, release
+        run: >
+          cargo deb --target x86_64-unknown-linux-musl
+      - name: Run cargo-deb for release
         if: inputs.deb && steps.version.outputs.version_commit != ''
         run: >
-          cargo deb --deb-version
-          '${{ steps.version.outputs.version_commit }}'
-      - name: show deb info
+          cargo deb --target x86_64-unknown-linux-musl
+          --deb-version '${{ steps.version.outputs.version_commit }}'
+      - name: Move deb to top dir
         if: inputs.deb
-        run: |
+        run: >
+          mv ./target/x86_64-unknown-linux-musl/debian/*.deb ./$deb
+      - name: Show deb information
+        if: inputs.deb
+        run: >
           set -e -x;
-          dpkg -I target/debian/*.deb
-          dpkg -c target/debian/*.deb;
+          find . -name '*.deb';
+          dpkg -I $deb;
+          dpkg -c $deb;
       - uses: actions/upload-artifact@v4.4.0
         if: inputs.deb
         with:
-          name: cargo-deb
+          name: ${{ steps.pkg.outputs.deb }}
+          path: ${{ steps.pkg.outputs.deb }}
           if-no-files-found: error
-          path: target/debian
   cargo-rpm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.0
         if: inputs.rpm
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
         if: inputs.rpm
-      - name: Set RPM name
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
+      - name: Set .rpm info
+        id: pkg
         run: >
-          echo "rpm=${{ steps.version.outputs.package_basename }}.rpm"
-          >> "$GITHUB_ENV"
+          set -e -x;
+          rpm_arch=$(rpm --eval '%_arch');
+          rpm=${{ steps.version.outputs.rpm_basename }}.$rpm_arch.rpm;
+          echo "rpm=$rpm" >> "$GITHUB_ENV";
+          echo "rpm=$rpm" >> "$GITHUB_OUTPUT";
       - uses: dtolnay/rust-toolchain@stable
         if: inputs.rpm
         with:
@@ -215,12 +235,11 @@ jobs:
         run: cargo install cargo-generate-rpm
       - name: Generate the RPM
         if: inputs.rpm
-        run: |
-          set -e -x;
+        run: >
           cargo generate-rpm --target x86_64-unknown-linux-musl -o $rpm
       - name: Show rpm info
         if: inputs.rpm
-        run: |
+        run: >
           set -e -x;
           find . -name '*.rpm';
           rpm -qp $rpm --info;
@@ -229,7 +248,7 @@ jobs:
           rpm -qp $rpm --list
       - name: Test the installation in almalinux
         if: inputs.rpm
-        run: |
+        run: >
           set -e -x;
           docker run --rm -v $PWD:$PWD -w $PWD almalinux rpm -iv $rpm
         env:
@@ -237,15 +256,15 @@ jobs:
       - uses: actions/upload-artifact@v4.4.0
         if: inputs.rpm
         with:
-          name: ${{ steps.version.outputs.package_basename }}.rpm
-          path: ${{ steps.version.outputs.package_basename }}.rpm
+          name: ${{ steps.pkg.outputs.rpm }}
+          path: ${{ steps.pkg.outputs.rpm }}
           if-no-files-found: error
   rust-misc:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.0
       - uses: dtolnay/rust-toolchain@stable
-      - name: check Cargo.lock version against Cargo.toml
+      - name: Check Cargo.lock version against Cargo.toml
         run: cargo update -w --locked
         if: ${{ hashFiles('Cargo.lock') != '' }}
   cargo-semver-checks:
@@ -253,7 +272,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
       - name: cargo-semver-checks
         uses: obi1kenobi/cargo-semver-checks-action@v2.6
         if: >
@@ -268,11 +287,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-      - name: publish crate on crates.io
+      - name: Publish crate on crates.io
         uses: katyo/publish-crates@v2
         if: steps.version.outputs.version_tagged != ''
         env:
@@ -291,14 +310,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
-      - name: download packages generated by cargo-deb
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
+      - name: Set .deb information
+        id: pkg
+        run: >
+          set -e -x;
+          deb_arch=$(dpkg --print-architecture);
+          deb=${{ steps.version.outputs.deb_basename }}_$deb_arch.deb;
+          echo "deb=$deb" >> "$GITHUB_OUTPUT";
+      - name: Download the package generated by cargo-deb
         uses: actions/download-artifact@v4.1.8
         if: inputs.deb
         with:
-          name: cargo-deb
-          path: target/release
-      - name: publish deb on packagecloud
+          name: ${{ steps.pkg.outputs.deb }}
+      - name: Publish deb on packagecloud
         uses: docker://lpenz/ghaction-packagecloud:0.5
         if: steps.version.outputs.version_tagged != ''
         env:
@@ -317,13 +342,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
-      - name: download packages generated by cargo-generate-rpm
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
+      - name: Set .rpm info
+        id: pkg
+        run: >
+          set -e -x;
+          rpm_arch=$(rpm --eval '%_arch');
+          rpm=${{ steps.version.outputs.rpm_basename }}.$rpm_arch.rpm;
+          echo "rpm=$rpm" >> "$GITHUB_OUTPUT";
+      - name: Download the package generated by cargo-rpm
         uses: actions/download-artifact@v4.1.8
         if: inputs.rpm
         with:
-          name: ${{ steps.version.outputs.package_basename }}.rpm
-      - name: publish rpm on packagecloud
+          name: ${{ steps.pkg.outputs.rpm }}
+      - name: Publish rpm on packagecloud
         uses: docker://lpenz/ghaction-packagecloud:0.5
         if: steps.version.outputs.version_tagged != ''
         env:
@@ -339,32 +371,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.0
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.15.1
-      - name: download cargo-build-release
+        uses: docker://lpenz/ghaction-version-gen:0.16.0
+      - name: Set .deb and .rpm info
+        id: pkg
+        run: >
+          set -e -x;
+          rpm_arch=$(rpm --eval '%_arch');
+          rpm=${{ steps.version.outputs.rpm_basename }}.$rpm_arch.rpm;
+          echo "rpm=$rpm" >> "$GITHUB_OUTPUT";
+          deb_arch=$(dpkg --print-architecture);
+          deb=${{ steps.version.outputs.deb_basename }}_$deb_arch.deb;
+          echo "deb=$deb" >> "$GITHUB_OUTPUT";
+      - name: Download cargo-build-release
         uses: actions/download-artifact@v4.1.8
         with:
           name: cargo-build-release
           path: target/release
-      - name: download cargo-deb
+      - name: Download cargo-deb
         uses: actions/download-artifact@v4.1.8
         if: inputs.deb
         with:
-          name: cargo-deb
-          path: target/debian
-      - name: download cargo-deb
-        uses: actions/download-artifact@v4.1.8
-        if: inputs.deb
-        with:
-          name: cargo-deb
-          path: target/debian
-      - name: download cargo-rpm
+          name: ${{ steps.pkg.outputs.deb }}
+      - name: Download cargo-rpm
         uses: actions/download-artifact@v4.1.8
         if: inputs.rpm
         with:
-          name: ${{ steps.version.outputs.package_basename }}.rpm
-      - name: list all files
+          name: ${{ steps.pkg.outputs.rpm }}
+      - name: List all files
         run: find . -type f
-      - name: publish github release
+      - name: Publish github release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
         if: steps.version.outputs.version_tagged != ''
         with:
@@ -372,5 +407,6 @@ jobs:
           prerelease: false
           files: |
             target/debian/*.deb
-            ${{ steps.version.outputs.package_basename }}.rpm
+            ${{ steps.pkg.outputs.deb }}
+            ${{ steps.pkg.outputs.rpm }}
             ${{ inputs.publish_github_release_files }}
