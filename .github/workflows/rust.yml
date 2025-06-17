@@ -406,7 +406,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
           files: |
-            target/debian/*.deb
             ${{ steps.pkg.outputs.deb }}
             ${{ steps.pkg.outputs.rpm }}
             ${{ inputs.publish_github_release_files }}
