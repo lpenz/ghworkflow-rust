@@ -15,10 +15,10 @@ projects. The workflow runs the following jobs:
 - *[rustfmt]*
 - *[clippy]*
 - *[cargo-audit]*
-- *cargo-deb*: installs and runs [cargo-deb]; copies manual to the
+- *deb*: installs and runs [cargo-deb]; copies manual to the
   crate directory, if present.
   (optional)
-- *cargo-rpm*: installs and runs [cargo-generate-rpm]; copies manual
+- *rpm*: installs and runs [cargo-generate-rpm]; copies manual
   to the crate directory, if present.
   (optional)
 - *rust-misc*: misc checks; for now it checks if the Cargo.lock
@@ -30,13 +30,13 @@ projects. The workflow runs the following jobs:
   Requires the `CARGO_REGISTRY_TOKEN` secret.
   (optional)
 - *publish-packagecloud-deb*: uses [packagecloud] to upload
-  the Debian package built by the `cargo-deb` job to
+  the Debian package built by the `deb` job to
   [packagecloud.io] when the repository is tagged with a
   version. Requires the `PACKAGECLOUD_TOKEN` secret and the
   `deb` input to be `true`.
   (optional)
 - *publish-packagecloud-rpm*: uses [packagecloud] to upload
-  the RPM package built by the `cargo-rpm` job to
+  the RPM package built by the `rpm` job to
   [packagecloud.io] when the repository is tagged with a
   version. Requires the `PACKAGECLOUD_TOKEN` secret and the
   `rpm` input to be `true`.
@@ -58,7 +58,7 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.24.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.25.0
     with:
       coveralls: true
       codecov: true
@@ -83,7 +83,7 @@ organization. See [reusing-workflows] for more information.
   [coveralls.io] when `true`.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
   when `true`.
-- `deb`: enables *cargo-deb* when `true`.
+- `deb`: enables *deb* when `true`.
 - `dependencies_debian`: dependencies as Debian packages to install;
    used in the appropriate actions if defined
 - `publish_cratesio`: enables the *publish-cratesio* job.
