@@ -80,10 +80,10 @@ jobs:
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release
-      - uses: actions/upload-artifact@v4.4.0
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: cargo-build-release
           if-no-files-found: error
@@ -91,16 +91,16 @@ jobs:
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check
   cargo-doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo doc --all-features
-      - uses: actions/upload-artifact@v4.4.0
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: cargo-doc
           if-no-files-found: error
@@ -113,24 +113,24 @@ jobs:
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
         if: inputs.dependencies_debian
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: llvm-tools
-      - uses: taiki-e/install-action@v2.44.9
+      - uses: taiki-e/install-action@v2.56.9
         with:
           tool: cargo-llvm-cov
       - run: cargo llvm-cov --all-features --lcov --output-path lcov.info
         env:
           CARGO_HUSKY_DONT_INSTALL_HOOKS: true
       - name: Upload coverage data to coveralls
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2.3.6
         if: inputs.coveralls
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
       - name: Upload coverage data to codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.4.3
         if: inputs.codecov
         with:
           files: lcov.info
@@ -138,7 +138,7 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
@@ -146,7 +146,7 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
@@ -154,7 +154,7 @@ jobs:
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo install cargo-audit
       - run: cargo audit
@@ -163,11 +163,11 @@ jobs:
     outputs:
       deb: ${{ steps.pkg.outputs.deb }}
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
         if: inputs.deb
       - id: version
         if: inputs.deb
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: Set .deb information
         id: pkg
         run: >
@@ -203,7 +203,7 @@ jobs:
           find . -name '*.deb';
           dpkg -I $deb;
           dpkg -c $deb;
-      - uses: actions/upload-artifact@v4.4.0
+      - uses: actions/upload-artifact@v4.6.2
         if: inputs.deb
         with:
           name: ${{ steps.pkg.outputs.deb }}
@@ -214,11 +214,11 @@ jobs:
     outputs:
       rpm: ${{ steps.pkg.outputs.rpm }}
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
         if: inputs.rpm
       - id: version
         if: inputs.rpm
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: Set .rpm info
         id: pkg
         run: >
@@ -257,7 +257,7 @@ jobs:
           docker run --rm -v $PWD:$PWD -w $PWD almalinux rpm -iv $rpm
         env:
           CARGO_TARGET_DIR: target/x86_64-unknown-linux-musl
-      - uses: actions/upload-artifact@v4.4.0
+      - uses: actions/upload-artifact@v4.6.2
         if: inputs.rpm
         with:
           name: ${{ steps.pkg.outputs.rpm }}
@@ -266,7 +266,7 @@ jobs:
   rust-misc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - uses: dtolnay/rust-toolchain@stable
       - name: Check Cargo.lock version against Cargo.toml
         run: cargo update -w --locked
@@ -274,11 +274,11 @@ jobs:
   cargo-semver-checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: cargo-semver-checks
-        uses: obi1kenobi/cargo-semver-checks-action@v2.6
+        uses: obi1kenobi/cargo-semver-checks-action@v2.8
         if: >
           inputs.enable_cargo-semver-checks &&
           steps.version.outputs.version_tagged != ''
@@ -289,9 +289,9 @@ jobs:
     if: inputs.publish_cratesio
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
@@ -312,11 +312,11 @@ jobs:
       matrix:
         repository: ${{ fromJson(inputs.publish_packagecloud_repository_deb) }}
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: Download the package generated by deb
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         if: inputs.deb
         with:
           name: ${{ needs.deb.outputs.deb }}
@@ -337,11 +337,11 @@ jobs:
       matrix:
         repository: ${{ fromJson(inputs.publish_packagecloud_repository_rpm) }}
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: Download the package generated by rpm
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         if: inputs.rpm
         with:
           name: ${{ needs.rpm.outputs.rpm }}
@@ -359,21 +359,21 @@ jobs:
     if: inputs.publish_github_release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.0
+      - uses: actions/checkout@v4.2.2
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.16.0
+        uses: docker://lpenz/ghaction-version-gen:0.16.1
       - name: Download cargo-build-release
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         with:
           name: cargo-build-release
           path: target/release
       - name: Download deb
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         if: inputs.deb
         with:
           name: ${{ needs.deb.outputs.deb }}
       - name: Download rpm
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         if: inputs.rpm
         with:
           name: ${{ needs.rpm.outputs.rpm }}
