@@ -175,6 +175,11 @@ jobs:
     outputs:
       deb: ${{ steps.pkg.outputs.deb }}
     steps:
+      - name: Install dependencies
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
+        if: inputs.deb && inputs.dependencies_debian
       - uses: actions/checkout@v4.2.2
         if: inputs.deb
       - name: Set .deb information
@@ -224,6 +229,11 @@ jobs:
     outputs:
       rpm: ${{ steps.pkg.outputs.rpm }}
     steps:
+      - name: Install dependencies
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
+        if: inputs.rpm && inputs.dependencies_debian
       - uses: actions/checkout@v4.2.2
         if: inputs.rpm
       - name: Set .rpm info
