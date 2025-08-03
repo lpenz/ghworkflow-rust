@@ -58,7 +58,7 @@ name: CI
 on: [ push, pull_request ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.26.1
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.26.2
     with:
       coveralls: true
       codecov: true
