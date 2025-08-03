@@ -179,7 +179,8 @@ jobs:
         run: >
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
-        if: inputs.deb && inputs.dependencies_debian
+          musl-dev
+        if: inputs.deb
       - uses: actions/checkout@v4.2.2
         if: inputs.deb
       - name: Set .deb information
@@ -233,7 +234,8 @@ jobs:
         run: >
           sudo apt-get install -y --no-install-recommends
           ${{ inputs.dependencies_debian }}
-        if: inputs.rpm && inputs.dependencies_debian
+          musl-dev
+        if: inputs.rpm
       - uses: actions/checkout@v4.2.2
         if: inputs.rpm
       - name: Set .rpm info
