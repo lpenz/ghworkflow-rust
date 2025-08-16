@@ -75,14 +75,17 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      version_tagged: ${{ needs.version.outputs.version_tagged }}
-      version_commit: ${{ needs.version.outputs.version_commit }}
+      version_tagged: ${{ steps.version.outputs.version_tagged }}
+      version_commit: ${{ steps.version.outputs.version_commit }}
       deb_basename: ${{ steps.version.outputs.deb_basename }}
       rpm_basename: ${{ steps.version.outputs.rpm_basename }}
     steps:
       - uses: actions/checkout@v4.2.2
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.16.1
+      - name: show output
+        run: >-
+          cat $GITHUB_OUTPUT
   cargo-build-release:
     runs-on: ubuntu-latest
     steps:
