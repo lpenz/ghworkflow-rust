@@ -25,6 +25,8 @@ projects. The workflow runs the following jobs:
   version matches the one in Cargo.toml.
 - *[cargo-semver-checks]*: checks semver violantions before
   publishing.
+- *release*: release build. Optionally creates .tar.gz with the files
+  specified in `release_files`.
 - *publish-cratesio*: uses [publish-crate] to publish the crate
   to [crates.io] when the repository is tagged with a version.
   Requires the `CARGO_REGISTRY_TOKEN` secret.
@@ -55,10 +57,10 @@ enabled, use the following in your `.github/workflows/ci.yml`:
 ```.yml
 ---
 name: CI
-on: [ push, pull_request ]
+on: [ push, pull_request, workflow_dispatch ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.26.4
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.27.0
     with:
       coveralls: true
       codecov: true
@@ -84,12 +86,12 @@ organization. See [reusing-workflows] for more information.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
   when `true`.
 - `deb`: enables *deb* when `true`.
+- `rpm`: enables *rpm* when `true`.
 - `dependencies_debian`: dependencies as Debian packages to install;
    used in the appropriate actions if defined
+- `release_files`: files to publish in the github release .tar.gz.
 - `publish_cratesio`: enables the *publish-cratesio* job.
 - `publish_github_release`: enables the *publish-github-release* job.
-- `publish_github_release_files`: files to publish in the github
-  release.
 - `publish_packagecloud_repository_deb`: json list with packagecloud
   repositories to publish .deb. When defined, it enables the
   *publish-packagecloud-deb* job.
