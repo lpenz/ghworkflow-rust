@@ -368,7 +368,7 @@ jobs:
           merge-multiple: true
           pattern: '*.deb'
       - name: Publish deb on packagecloud
-        uses: docker://lpenz/ghaction-packagecloud:0.5
+        uses: docker://lpenz/ghaction-packagecloud:0.6.0
         if: needs.info.outputs.version_tagged != ''
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
@@ -386,7 +386,7 @@ jobs:
           merge-multiple: true
           pattern: '*.rpm'
       - name: Publish rpm on packagecloud
-        uses: docker://lpenz/ghaction-packagecloud:0.5
+        uses: docker://lpenz/ghaction-packagecloud:0.6.0
         if: needs.info.outputs.version_tagged != ''
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
