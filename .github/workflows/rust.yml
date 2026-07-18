@@ -50,12 +50,12 @@ on:  # yamllint disable-line rule:truthy
         description: Enables the publish-cratesio job.
         required: false
         type: boolean
-        default: true
+        default: false
       publish_github_release:
         description: Enables the publish-github-release job.
         required: false
         type: boolean
-        default: true
+        default: false
       publish_packagecloud_repository_deb:
         description: packagecloud repository to publish the .deb.
         required: false
