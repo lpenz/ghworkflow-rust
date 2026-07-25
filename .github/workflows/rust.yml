@@ -216,6 +216,7 @@ jobs:
           name: ${{ needs.info.outputs.basename }}_${{ matrix.arch.deb }}.tar.gz
           path: ${{ needs.info.outputs.basename }}_${{ matrix.arch.deb }}.tar.gz
           if-no-files-found: error
+          retention-days: 2
   deb:
     needs: [info]
     strategy:
@@ -272,6 +273,7 @@ jobs:
           path: >
             ${{ needs.info.outputs.deb_basename }}_${{ matrix.arch.deb }}.deb
           if-no-files-found: error
+          retention-days: 2
   rpm:
     needs: [info]
     strategy:
@@ -322,6 +324,7 @@ jobs:
           name: ${{ needs.info.outputs.rpm_basename }}.${{ matrix.arch.rpm }}.rpm
           path: ${{ needs.info.outputs.rpm_basename }}.${{ matrix.arch.rpm }}.rpm
           if-no-files-found: error
+          retention-days: 2
   ready:  # marks all tests as completed
     needs:
       - info
