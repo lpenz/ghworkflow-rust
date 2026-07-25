@@ -408,18 +408,10 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v5.0.0
-      - name: List all files
-        run: ls
-      - id: files
-        run: >
-          printf 'files=' >> $GITHUB_ENV;
-          echo -n $(ls) >> $GITHUB_ENV;
-          echo >> $GITHUB_ENV
-      - run: cat $GITHUB_ENV
       - name: Publish github release
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+        uses: softprops/action-gh-release@v3
         if: needs.info.outputs.version_tagged != ''
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
-          files: ${{ env.files }}
+          files: "**/*"
+          tag_name: ${{ needs.info.outputs.version_tagged }}
+          generate_release_notes: true
