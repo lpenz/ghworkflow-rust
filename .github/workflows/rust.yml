@@ -422,4 +422,4 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
-          files: ${{ steps.files.files }}
+          files: ${{ env.files }}
