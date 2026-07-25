@@ -134,7 +134,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
       - name: Upload coverage data to codecov
-        uses: codecov/codecov-action@v5.5.1
+        uses: codecov/codecov-action@v7
         if: inputs.codecov
         with:
           files: lcov.info
