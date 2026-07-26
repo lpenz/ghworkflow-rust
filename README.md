@@ -15,6 +15,7 @@ projects. The workflow runs the following jobs:
 - *[rustfmt]*
 - *[clippy]*
 - *[cargo-audit]*
+- *[cargo-machete]*: detects unused dependencies.
 - *deb*: installs and runs [cargo-deb]; copies manual to the
   crate directory, if present.
   (optional)
@@ -107,6 +108,7 @@ organization. See [reusing-workflows] for more information.
 [rustfmt]: https://crates.io/crates/rustfmt-nightly
 [clippy]: https://github.com/actions-rs/clippy-check
 [cargo-audit]: https://crates.io/crates/cargo-audit
+[cargo-machete]: https://crates.io/crates/cargo-machete
 [cargo-deb]: https://crates.io/crates/cargo-deb
 [cargo-generate-rpm]: https://crates.io/crates/cargo-generate-rpm
 [publish-crate]: https://github.com/marketplace/actions/publish-crates

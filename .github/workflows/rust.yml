@@ -167,6 +167,15 @@ jobs:
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit
+  cargo-machete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: Install cargo-machete
+        uses: taiki-e/install-action@v2.59.1
+        with:
+          tool: cargo-machete
+      - run: cargo machete
   rust-misc:
     runs-on: ubuntu-latest
     steps:
@@ -346,6 +355,7 @@ jobs:
       - rustfmt
       - clippy
       - cargo-audit
+      - cargo-machete
       - rust-misc
       - cargo-semver-checks
       - release
