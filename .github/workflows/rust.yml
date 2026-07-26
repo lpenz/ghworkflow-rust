@@ -160,7 +160,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --all-features -- -D warnings
+      - run: cargo clippy --all-features --all-targets -- -D warnings
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
