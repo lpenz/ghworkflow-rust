@@ -99,7 +99,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo check
   cargo-doc:
-    needs: [info]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5.0.0
