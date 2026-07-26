@@ -186,6 +186,7 @@ jobs:
   release:
     needs: [info]
     strategy:
+      fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.info.outputs.arch) }}
     runs-on: ${{ matrix.arch.runs }}
@@ -223,6 +224,7 @@ jobs:
   deb:
     needs: [info]
     strategy:
+      fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.info.outputs.arch) }}
     runs-on: ${{ matrix.arch.runs }}
@@ -282,6 +284,7 @@ jobs:
   rpm:
     needs: [info]
     strategy:
+      fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.info.outputs.arch) }}
     runs-on: ${{ matrix.arch.runs }}
