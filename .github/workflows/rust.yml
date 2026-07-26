@@ -160,7 +160,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5.0.0
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install cargo-audit
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@v2.59.1
+        with:
+          tool: cargo-audit@0.22.2
       - run: cargo audit
   rust-misc:
     runs-on: ubuntu-latest
@@ -242,8 +245,10 @@ jobs:
         with:
           target: ${{ matrix.arch.rust }}
       - name: Install cargo-deb
+        uses: taiki-e/install-action@v2.59.1
         if: inputs.deb
-        run: cargo install cargo-deb
+        with:
+          tool: cargo-deb
       - name: Run cargo-deb for tests only
         if: inputs.deb && needs.info.outputs.version_commit == ''
         run: >
@@ -302,8 +307,10 @@ jobs:
         if: inputs.rpm
         run: cargo build --release --target ${{ matrix.arch.rust }}
       - name: Install cargo-generate-rpm
+        uses: taiki-e/install-action@v2.59.1
         if: inputs.rpm
-        run: cargo install cargo-generate-rpm
+        with:
+          tool: cargo-generate-rpm
       - name: Generate the RPM
         if: inputs.rpm
         run: >
