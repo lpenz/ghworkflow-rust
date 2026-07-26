@@ -26,7 +26,7 @@ projects. The workflow runs the following jobs:
   (optional)
 - *rust-misc*: misc checks; for now it checks if the Cargo.lock
   version matches the one in Cargo.toml.
-- *[cargo-semver-checks]*: checks semver violantions before
+- *[cargo-semver-checks]*: checks semver violations before
   publishing.
 - *release*: release build. Optionally creates .tar.gz with the files
   specified in `release_files`.
@@ -54,10 +54,10 @@ projects. The workflow runs the following jobs:
 
 ## Usage
 
-To use this worflow, with both packagecloud and crates.io uploads
+To use this workflow, with both packagecloud and crates.io uploads
 enabled, use the following in your `.github/workflows/ci.yml`:
 
-```.yml
+```yml
 ---
 name: CI
 on: [ push, pull_request, workflow_dispatch ]
@@ -108,7 +108,7 @@ organization. See [reusing-workflows] for more information.
 [cargo-doc]: https://doc.rust-lang.org/cargo/commands/cargo-doc.html
 [cargo-test]: https://doc.rust-lang.org/cargo/commands/cargo-test.html
 [rustfmt]: https://crates.io/crates/rustfmt-nightly
-[clippy]: https://github.com/actions-rs/clippy-check
+[clippy]: https://crates.io/crates/clippy
 [cargo-audit]: https://crates.io/crates/cargo-audit
 [cargo-machete]: https://crates.io/crates/cargo-machete
 [cargo-deb]: https://crates.io/crates/cargo-deb
