@@ -176,6 +176,22 @@ jobs:
         with:
           tool: cargo-machete
       - run: cargo machete
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - name: Get MSRV from Cargo.toml
+        id: msrv
+        run: |
+          VERSION=$(grep -m1 '^rust-version' Cargo.toml | sed 's/.*"\(.*\)".*/\1/' || true)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - uses: dtolnay/rust-toolchain@master
+        if: steps.msrv.outputs.version != ''
+        with:
+          toolchain: ${{ steps.msrv.outputs.version }}
+      - name: Check with MSRV
+        if: steps.msrv.outputs.version != ''
+        run: cargo check
   rust-misc:
     runs-on: ubuntu-latest
     steps:
@@ -356,6 +372,7 @@ jobs:
       - clippy
       - cargo-audit
       - cargo-machete
+      - msrv
       - rust-misc
       - cargo-semver-checks
       - release

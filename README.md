@@ -16,6 +16,8 @@ projects. The workflow runs the following jobs:
 - *[clippy]*
 - *[cargo-audit]*
 - *[cargo-machete]*: detects unused dependencies.
+- *msrv*: checks that the project compiles with the minimum supported
+  Rust version (from `rust-version` in `Cargo.toml`). Skips if not set.
 - *deb*: installs and runs [cargo-deb]; copies manual to the
   crate directory, if present.
   (optional)
