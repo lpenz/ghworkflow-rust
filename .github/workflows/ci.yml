@@ -5,12 +5,12 @@ jobs:
   omnilint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5.0.0
-      - uses: docker://lpenz/omnilint:0.5.2
+      - uses: actions/checkout@v7.0.1
+      - uses: docker://lpenz/omnilint:0.6.0
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v7.0.1
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
         with:
           config-file: .github/config/mlc_config.json
@@ -18,11 +18,11 @@ jobs:
     needs: [omnilint, markdown-link-check]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v7.0.1
       - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.17.3
+        uses: docker://lpenz/ghaction-version-gen:0.20.0
       - name: publish github release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v3.0.2
         if: steps.version.outputs.version_tagged != ''
         with:
           tag_name: ${{ steps.version.outputs.version_tagged }}
