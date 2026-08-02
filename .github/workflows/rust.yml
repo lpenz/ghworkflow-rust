@@ -234,8 +234,7 @@ jobs:
           set -e -x;
           apt-get update;
           apt-get install -y --no-install-recommends
-          ${{ inputs.dependencies_debian }}
-          musl-dev
+          musl-dev ${{ inputs.dependencies_debian }}
       - uses: actions/checkout@v7.0.1
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -272,8 +271,7 @@ jobs:
           set -e -x;
           apt-get update;
           apt-get install -y --no-install-recommends
-          ${{ inputs.dependencies_debian }}
-          musl-dev
+          musl-dev ${{ inputs.dependencies_debian }}
         if: inputs.deb
       - uses: actions/checkout@v7.0.1
         if: inputs.deb
@@ -332,8 +330,7 @@ jobs:
           set -e -x;
           apt-get update;
           apt-get install -y --no-install-recommends
-          ${{ inputs.dependencies_debian }}
-          musl-dev rpm
+          musl-dev rpm ${{ inputs.dependencies_debian }}
         if: inputs.rpm
       - uses: actions/checkout@v7.0.1
         if: inputs.rpm
