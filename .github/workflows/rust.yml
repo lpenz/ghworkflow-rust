@@ -12,6 +12,18 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: boolean
         default: true
+      test_features:
+        description: |
+          JSON list of test-runs to execute in the cargo-test job.
+          Each element is the full set of cargo arguments for one test
+          run, e.g. '["--all-features"]' (the default) or
+          '["--no-default-features", "--features std"]'. An empty
+          string element means to test with no features, e.g.
+          '[""]'. Tests are run for each element one by one, and
+          coverage data is accumulated across all runs.
+        required: false
+        type: string
+        default: '["--all-features"]'
       coveralls:
         description: |
           Makes cargo-test upload test coverage data to coveralls.io
@@ -126,14 +138,26 @@ jobs:
           tool: cargo-llvm-cov
       - name: Run tests with coverage
         if: inputs.coveralls || inputs.codecov
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+        run: |
+          set -euxo pipefail
+          cargo llvm-cov clean --workspace
+          while IFS= read -r test_args; do
+            eval "cargo llvm-cov --no-report $test_args"
+          done < <(printf '%s\n' "$TEST_FEATURES" | jq -r '.[]')
+          cargo llvm-cov report --lcov --output-path lcov.info
         env:
           CARGO_HUSKY_DONT_INSTALL_HOOKS: true
+          TEST_FEATURES: ${{ inputs.test_features }}
       - name: Run tests without coverage
         if: '!(inputs.coveralls || inputs.codecov)'
-        run: cargo test --all-features
+        run: |
+          set -euxo pipefail
+          while IFS= read -r test_args; do
+            eval "cargo test $test_args"
+          done < <(printf '%s\n' "$TEST_FEATURES" | jq -r '.[]')
         env:
           CARGO_HUSKY_DONT_INSTALL_HOOKS: true
+          TEST_FEATURES: ${{ inputs.test_features }}
       - name: Upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.3.8
         if: inputs.coveralls

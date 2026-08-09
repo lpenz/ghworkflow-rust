@@ -84,6 +84,13 @@ organization. See [reusing-workflows] for more information.
 
 - `enable_cargo-semver-checks`: enables cargo-semver-checks - default
   is `true`.
+- `test_features`: JSON list of test-runs to execute in the
+  *cargo-test* job. Each element is the full set of cargo arguments
+  for one test run, e.g. `["--all-features"]` (the default) or
+  `["--no-default-features", "--features std"]`. An empty string
+  element means to test with no features, e.g. `[""]`. Tests are run
+  for each element one by one, and coverage data is accumulated across all
+  runs.
 - `coveralls`: makes *cargo-test* upload test coverage data to
   [coveralls.io] when `true`.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
