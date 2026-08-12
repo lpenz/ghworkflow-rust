@@ -1,0 +1,265 @@
+---
+# Copyright (C) 2022 Leandro Lisboa Penz <lpenz@lpenz.org>
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE', which is part of this source code package.
+name: rust-test
+on:  # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      enable_cargo-semver-checks:
+        description: |
+          Enables cargo-semver-checks - default is true.
+        required: false
+        type: boolean
+        default: true
+      test_features:
+        description: |
+          JSON list of test-runs to execute in the cargo-test job.
+          Each element is the full set of cargo arguments for one test
+          run, e.g. '["--all-features"]' (the default) or
+          '["--no-default-features", "--features std"]'. An empty
+          string element means to test with no features, e.g.
+          '[""]'. Tests are run for each element one by one, and
+          coverage data is accumulated across all runs.
+        required: false
+        type: string
+        default: '["--all-features"]'
+      coveralls:
+        description: |
+          Makes cargo-test upload test coverage data to coveralls.io
+          when true.
+        required: false
+        type: boolean
+        default: false
+      codecov:
+        description: |
+          Makes *cargo-test* upload test coverage data to codecov.io
+          when true.
+        required: false
+        type: boolean
+        default: false
+      dependencies_debian:
+        description: |
+          Dependencies as Debian packages to install; used in the
+          appropriate actions if defined
+        type: string
+      deb:
+        description: Enables the reduced deb build when true.
+        required: false
+        type: boolean
+        default: false
+      rpm:
+        description: Enables the reduced rpm build when true.
+        required: false
+        type: boolean
+        default: false
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    outputs:
+      version_tagged: ${{ steps.version.outputs.version_tagged }}
+      version_commit: ${{ steps.version.outputs.version_commit }}
+      basename: ${{ steps.version.outputs.basename }}
+      deb_basename: ${{ steps.version.outputs.deb_basename }}
+      rpm_basename: ${{ steps.version.outputs.rpm_basename }}
+      arch: ${{ steps.arch.outputs.arch }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - id: version
+        uses: docker://lpenz/ghaction-version-gen:0.20.0
+      - id: arch
+        run: |
+          echo 'arch=[{"runs": "ubuntu-latest", "rust": "x86_64-unknown-linux-musl", "deb": "amd64", "rpm": "x86_64" }, {"runs": "ubuntu-24.04-arm", "rust": "aarch64-unknown-linux-musl", "deb": "arm64", "rpm": "aarch64"}]' >> $GITHUB_OUTPUT
+      - name: show output
+        run: >-
+          cat $GITHUB_OUTPUT
+  cargo-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2.9.1
+      - run: cargo check
+  cargo-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2.9.1
+      - run: cargo doc --all-features
+        env:
+          RUSTDOCFLAGS: -D warnings
+  cargo-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
+        if: inputs.dependencies_debian
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools
+      - uses: Swatinem/rust-cache@v2.9.1
+      - uses: taiki-e/install-action@v2.85.4
+        if: inputs.coveralls || inputs.codecov
+        with:
+          tool: cargo-llvm-cov
+      - name: Run tests with coverage
+        if: inputs.coveralls || inputs.codecov
+        run: |
+          set -euxo pipefail
+          cargo llvm-cov clean --workspace
+          while IFS= read -r test_args; do
+            eval "cargo llvm-cov --no-report $test_args"
+          done < <(printf '%s\n' "$TEST_FEATURES" | jq -r '.[]')
+          cargo llvm-cov report --lcov --output-path lcov.info
+        env:
+          CARGO_HUSKY_DONT_INSTALL_HOOKS: true
+          TEST_FEATURES: ${{ inputs.test_features }}
+      - name: Run tests without coverage
+        if: '!(inputs.coveralls || inputs.codecov)'
+        run: |
+          set -euxo pipefail
+          while IFS= read -r test_args; do
+            eval "cargo test $test_args"
+          done < <(printf '%s\n' "$TEST_FEATURES" | jq -r '.[]')
+        env:
+          CARGO_HUSKY_DONT_INSTALL_HOOKS: true
+          TEST_FEATURES: ${{ inputs.test_features }}
+      - name: Upload coverage data to coveralls
+        uses: coverallsapp/github-action@v2.3.8
+        if: inputs.coveralls
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: lcov.info
+      - name: Upload coverage data to codecov
+        uses: codecov/codecov-action@v7.0.0
+        if: inputs.codecov
+        with:
+          files: lcov.info
+          fail_ci_if_error: true
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2.9.1
+      - run: cargo clippy --all-features --all-targets -- -D warnings
+  cargo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@v2.85.4
+        with:
+          tool: cargo-audit@0.22.2
+      - run: cargo audit
+  cargo-machete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install cargo-machete
+        uses: taiki-e/install-action@v2.85.4
+        with:
+          tool: cargo-machete
+      - run: cargo machete
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Get MSRV from Cargo.toml
+        id: msrv
+        run: |
+          VERSION=$(grep -m1 '^rust-version' Cargo.toml | sed 's/.*"\(.*\)".*/\1/' || true)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.msrv.outputs.version != ''
+        with:
+          toolchain: ${{ steps.msrv.outputs.version }}
+      - uses: Swatinem/rust-cache@v2.9.1
+        if: steps.msrv.outputs.version != ''
+      - name: Check with MSRV
+        if: steps.msrv.outputs.version != ''
+        run: cargo check
+  rust-misc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check Cargo.lock version against Cargo.toml
+        run: cargo update -w --locked
+        if: hashFiles('Cargo.lock') != ''
+  cargo-semver-checks:
+    needs: [info]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: cargo-semver-checks
+        uses: obi1kenobi/cargo-semver-checks-action@v2.9
+        if: >-
+          inputs.enable_cargo-semver-checks &&
+          needs.info.outputs.version_tagged != ''
+  deb:
+    runs-on: ubuntu-latest
+    if: inputs.deb
+    steps:
+      - name: Install dependencies
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          ${{ inputs.dependencies_debian }}
+        if: inputs.dependencies_debian
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2.9.1
+      - name: Install cargo-deb
+        uses: taiki-e/install-action@v2.85.4
+        with:
+          tool: cargo-deb
+      - name: Run cargo-deb
+        run: cargo deb
+      - name: Show deb information
+        run: |
+          set -e -x;
+          find . -name '*.deb' -exec mv -v {} ./test-deb.deb \;
+          dpkg -I ./test-deb.deb;
+          dpkg -c ./test-deb.deb;
+  rpm:
+    runs-on: ubuntu-latest
+    if: inputs.rpm
+    steps:
+      - name: Install dependencies
+        run: >
+          sudo apt-get install -y --no-install-recommends
+          rpm ${{ inputs.dependencies_debian }}
+      - uses: actions/checkout@v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2.9.1
+      - name: Build release
+        run: cargo build --release
+      - name: Install cargo-generate-rpm
+        uses: taiki-e/install-action@v2.85.4
+        with:
+          tool: cargo-generate-rpm
+      - name: Generate the RPM
+        run: cargo generate-rpm
+      - name: Show rpm info
+        run: |
+          set -e -x;
+          find . -name '*.rpm' -exec mv -v {} ./test-rpm.rpm \;
+          rpm -qp ./test-rpm.rpm --info;
+          rpm -qp ./test-rpm.rpm --requires;
+          rpm -qp ./test-rpm.rpm --provides;
+          rpm -qp ./test-rpm.rpm --list

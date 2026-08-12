@@ -4,10 +4,13 @@
 
 # ghworkflow-rust
 
-This repository provides a reusable github workflow for rust
-projects. The workflow runs the following jobs:
-- *[cargo-build-release]*: does a `cargo build --release` and makes the `target`
-  directory available for other jobs.
+This repository provides reusable github workflows for rust
+projects. The *rust* workflow is a wrapper that runs the *rust-test*
+workflow (all checks and tests) followed by the *rust-deploy*
+workflow (release build, packages and publishing). The workflows run
+the following jobs:
+
+*rust-test*:
 - *[cargo-check]*
 - *[cargo-doc]*
 - *[cargo-test]*: runs `cargo test` with coverage and uploads results
@@ -18,18 +21,26 @@ projects. The workflow runs the following jobs:
 - *[cargo-machete]*: detects unused dependencies.
 - *msrv*: checks that the project compiles with the minimum supported
   Rust version (from `rust-version` in `Cargo.toml`). Skips if not set.
+- *rust-misc*: misc checks; for now it checks if the Cargo.lock
+  version matches the one in Cargo.toml.
+- *[cargo-semver-checks]*: checks semver violations before
+  publishing.
+- *deb*: runs *cargo-deb* on a single architecture to check that
+  the Debian packaging works.
+  (optional, enabled by the `deb` input)
+- *rpm*: runs *cargo-generate-rpm* on a single architecture to
+  check that the RPM packaging works.
+  (optional, enabled by the `rpm` input)
+
+*rust-deploy*:
+- *release*: release build. Optionally creates .tar.gz with the files
+  specified in `release_files`.
 - *deb*: installs and runs [cargo-deb]; copies manual to the
   crate directory, if present.
   (optional)
 - *rpm*: installs and runs [cargo-generate-rpm]; copies manual
   to the crate directory, if present.
   (optional)
-- *rust-misc*: misc checks; for now it checks if the Cargo.lock
-  version matches the one in Cargo.toml.
-- *[cargo-semver-checks]*: checks semver violations before
-  publishing.
-- *release*: release build. Optionally creates .tar.gz with the files
-  specified in `release_files`.
 - *publish-cratesio*: uses [publish-crate] to publish the crate
   to [crates.io] when the repository is tagged with a version.
   Requires the `CARGO_REGISTRY_TOKEN` secret.
@@ -54,8 +65,9 @@ projects. The workflow runs the following jobs:
 
 ## Usage
 
-To use this workflow, with both packagecloud and crates.io uploads
-enabled, use the following in your `.github/workflows/ci.yml`:
+To use the *rust* workflow, with both packagecloud and crates.io
+uploads enabled, use the following in your
+`.github/workflows/ci.yml`:
 
 ```yml
 ---
@@ -71,6 +83,32 @@ jobs:
       packagecloud: true
       publish_packagecloud_repository_deb: |
         ["debian/debian/bookworm", "ubuntu/ubuntu/jammy"]
+    secrets:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+```
+
+The *rust* workflow forwards the inputs and secrets to the
+*rust-test* and *rust-deploy* workflows. If you don't want to use the
+wrapper, you can call the two workflows directly:
+
+```yml
+---
+name: CI
+on: [ push, pull_request, workflow_dispatch ]
+jobs:
+  test:
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust-test.yml@v0.29.5
+    with:
+      coveralls: true
+      codecov: true
+  deploy:
+    needs: [test]
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust-deploy.yml@v0.29.5
+    with:
+      deb: true
+      rpm: true
+      release_files: mycrate
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
@@ -95,8 +133,10 @@ organization. See [reusing-workflows] for more information.
   [coveralls.io] when `true`.
 - `codecov`: makes *cargo-test* upload test coverage data to [codecov.io]
   when `true`.
-- `deb`: enables *deb* when `true`.
-- `rpm`: enables *rpm* when `true`.
+- `deb`: when `true`, enables the *deb* job in *rust-test* and
+  the *deb* job in *rust-deploy*.
+- `rpm`: when `true`, enables the *rpm* job in *rust-test* and
+  the *rpm* job in *rust-deploy*.
 - `dependencies_debian`: dependencies as Debian packages to install;
    used in the appropriate actions if defined
 - `release_files`: files to publish in the github release .tar.gz.
