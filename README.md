@@ -83,7 +83,7 @@ name: CI
 on: [ push, pull_request, workflow_dispatch ]
 jobs:
   rust:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.30.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust.yml@v0.31.0
     with:
       coveralls: true
       codecov: true
@@ -106,13 +106,13 @@ name: CI
 on: [ push, pull_request, workflow_dispatch ]
 jobs:
   test:
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust-test.yml@v0.30.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust-test.yml@v0.31.0
     with:
       coveralls: true
       codecov: true
   deploy:
     needs: [test]
-    uses: lpenz/ghworkflow-rust/.github/workflows/rust-deploy.yml@v0.30.0
+    uses: lpenz/ghworkflow-rust/.github/workflows/rust-deploy.yml@v0.31.0
     with:
       deb: true
       rpm: true
