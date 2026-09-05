@@ -68,6 +68,13 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: boolean
         default: false
+      publish_github_marketplace:
+        description: |
+          Enables publishing the github release to the github action
+          marketplace when the repository is a github action.
+        required: false
+        type: boolean
+        default: false
       publish_packagecloud_repository_deb:
         description: packagecloud repository to publish the .deb.
         required: false
@@ -104,6 +111,7 @@ jobs:
       release_files: ${{ inputs.release_files }}
       publish_cratesio: ${{ inputs.publish_cratesio }}
       publish_github_release: ${{ inputs.publish_github_release }}
+      publish_github_marketplace: ${{ inputs.publish_github_marketplace }}
       publish_packagecloud_repository_deb: ${{ inputs.publish_packagecloud_repository_deb }}
       publish_packagecloud_repository_rpm: ${{ inputs.publish_packagecloud_repository_rpm }}
     secrets:

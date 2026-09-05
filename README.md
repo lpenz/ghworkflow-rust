@@ -58,9 +58,17 @@ the following jobs:
   `rpm` input to be `true`.
   (optional)
 - *publish-github-release*: uses
-  [action-automatic-releases] to publish a [github release]
+  [softprops/action-gh-release] to publish a [github release]
   when the repository is tagged with a version.
   (optional)
+- *publish-github-marketplace*: when enabled, the
+  *publish-github-release* job first checks that the repository is a
+  github action (i.e. has an `action.yml` at the root) and then
+  publishes the release, which lists the action on the [github action
+  marketplace]. Github actions are published to the marketplace
+  automatically when a release is created for a repository that meets
+  the [marketplace requirements].
+  (optional, enabled by the `publish_github_marketplace` input)
 
 
 ## Usage
@@ -109,6 +117,7 @@ jobs:
       deb: true
       rpm: true
       release_files: mycrate
+      publish_github_marketplace: true
     secrets:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
@@ -142,6 +151,11 @@ organization. See [reusing-workflows] for more information.
 - `release_files`: files to publish in the github release .tar.gz.
 - `publish_cratesio`: enables the *publish-cratesio* job.
 - `publish_github_release`: enables the *publish-github-release* job.
+- `publish_github_marketplace`: when `true`, the *publish-github-release*
+  job checks that the repository has an `action.yml` at the root and
+  then publishes the release, which also lists the action on the
+  [github action marketplace]. See the [marketplace requirements]
+  before enabling it.
 - `publish_packagecloud_repository_deb`: json list with packagecloud
   repositories to publish .deb. When defined, it enables the
   *publish-packagecloud-deb* job.
@@ -162,8 +176,10 @@ organization. See [reusing-workflows] for more information.
 [cargo-generate-rpm]: https://crates.io/crates/cargo-generate-rpm
 [publish-crate]: https://github.com/marketplace/actions/publish-crates
 [packagecloud]: https://github.com/marketplace/actions/deploy-to-packagecloud-io
-[action-automatic-releases]: https://github.com/marketplace/actions/automatic-releases
+[softprops/action-gh-release]: https://github.com/marketplace/actions/gh-release
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+[github action marketplace]: https://github.com/marketplace?type=actions
+[marketplace requirements]: https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 [crates.io]: https://crates.io/
 [packagecloud.io]: https://packagecloud.io/
 [reusing-workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows

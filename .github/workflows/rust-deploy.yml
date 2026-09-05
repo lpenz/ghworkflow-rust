@@ -36,6 +36,13 @@ on:  # yamllint disable-line rule:truthy
         required: false
         type: boolean
         default: false
+      publish_github_marketplace:
+        description: |
+          Enables publishing the github release to the github action
+          marketplace when the repository is a github action.
+        required: false
+        type: boolean
+        default: false
       publish_packagecloud_repository_deb:
         description: packagecloud repository to publish the .deb.
         required: false
@@ -290,9 +297,18 @@ jobs:
           repository: ${{ matrix.repository }}
   publish-github-release:
     needs: [ready, info]
-    if: inputs.publish_github_release
+    if: inputs.publish_github_release || inputs.publish_github_marketplace
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7.0.1
+        if: inputs.publish_github_marketplace
+      - name: Check that the repository is a github action
+        if: inputs.publish_github_marketplace
+        run: |
+          if [ ! -f action.yml ] && [ ! -f action.yaml ]; then
+            echo "::error::can't publish to the github action marketplace: no action.yml or action.yaml at the repository root"
+            exit 1
+          fi
       - name: Download artifacts
         uses: actions/download-artifact@v8.0.1
       - name: Publish github release
