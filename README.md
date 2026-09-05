@@ -59,16 +59,14 @@ the following jobs:
   (optional)
 - *publish-github-release*: uses
   [softprops/action-gh-release] to publish a [github release]
-  when the repository is tagged with a version.
+  when the repository is tagged with a version. When the
+  `publish_github_marketplace` input is enabled, it first checks that
+  the repository is a github action (i.e. has an `action.yml` at the
+  root), and the published release then lists the action on the
+  [github action marketplace]. Github actions are published to the
+  marketplace automatically when a release is created for a repository
+  that meets the [marketplace requirements].
   (optional)
-- *publish-github-marketplace*: when enabled, the
-  *publish-github-release* job first checks that the repository is a
-  github action (i.e. has an `action.yml` at the root) and then
-  publishes the release, which lists the action on the [github action
-  marketplace]. Github actions are published to the marketplace
-  automatically when a release is created for a repository that meets
-  the [marketplace requirements].
-  (optional, enabled by the `publish_github_marketplace` input)
 
 
 ## Usage
